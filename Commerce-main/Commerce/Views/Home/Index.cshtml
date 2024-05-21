@@ -1,0 +1,123 @@
+﻿    @{
+        ViewData["Title"] = "Home Page";
+    }
+
+    <h1>金流串接範例</h1>
+    <div class="card" id="app">
+        <div class="card-header">
+            API 欄位
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="form-label">付款選項</label>
+                    <select id="PayOption" class="form-control" name="PayOption" v-model="addForm.PayOption">
+                        <option value="newbPay">藍新支付</option>
+                        <option selected="selected" value="newbPayPeriod">藍新訂閱</option>
+                        <option selected="selected" value="ECPay">綠界支付</option>
+                        <option selected="selected" value="ECPayPeriod">綠界訂閱</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">訂單編號</label>
+                    <input type="text" class="form-control" id="MerchantOrderNo" v-model="addForm.MerchantOrderNo">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="form-label">商品說明</label>
+                    <input type="text" class="form-control" id="ItemDesc" v-model="addForm.ItemDesc">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">商品金額</label>
+                    <input type="text" class="form-control" id="Amt" v-model="addForm.Amt">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="form-label">繳費有效期限</label>
+                    <input type="text" class="form-control" id="ExpireDate" v-model="addForm.ExpireDate">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">付款人電子信箱</label>
+                    <input type="text" class="form-control" id="Email" v-model="addForm.Email">
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" v-on:click="SendToNewebPay('VACC')">付款</button>
+            <button type="button" class="btn btn-primary" v-on:click="GetReturn()">查詢</button>
+        </div>
+    </div>
+    <div id="divContent"></div>
+    @section scripts {
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        // 表單資料
+                        addForm: {
+                            MerchantOrderNo: '@ViewData["MerchantOrderNo"]'
+                            , ItemDesc: '測試商品'
+                            , Amt: '100'
+                            , ExpireDate: '@ViewData["ExpireDate"]'
+                            , PayOption: 'ECPay'
+                            , Email: 'sean24163@hotmail.com'
+                        }
+                    }
+                }
+                , methods: {
+                    // 呼叫SendToNewebPay Controller 並取得回傳Form
+                    SendToNewebPay(ChannelID) {
+                        console.log(ChannelID)
+                        var self = this;
+
+                        // 組合表單資料
+                        var postData = {};
+                        postData['ChannelID'] = ChannelID;
+                        postData['MerchantOrderNo'] = self.addForm.MerchantOrderNo;
+                        postData['ItemDesc'] = self.addForm.ItemDesc;
+                        postData['Amt'] = self.addForm.Amt;
+                        postData['ExpireDate'] = self.addForm.ExpireDate;
+                        postData['PayOption'] = self.addForm.PayOption;
+                        postData['Email'] = self.addForm.Email;
+
+
+                        // 使用 jQuery Ajax 傳送至後端
+                        $.ajax({
+                            url: '@Url.Content("~/Home/SendToNewebPay")',
+                            method: 'POST',
+                            dataType: 'json',
+                            data: { inModel: postData, __RequestVerificationToken: $('@Html.AntiForgeryToken()').val() },
+                            success: function(returnObj) {
+                                $("#divContent").html(returnObj);
+                                $("#payForm").submit();
+                            },
+                            error: function(err) {
+                                alert(err.status + " " + err.statusText + '\n' + err.responseText);
+                            }
+                        });
+                    },
+                     GetReturn() {
+
+                        var postData = {};
+                        var self = this;
+                        postData['MerchantOrderNo'] = self.addForm.MerchantOrderNo;
+                        postData['Amt'] = self.addForm.Amt;
+
+                        $.ajax({
+                            url: '@Url.Content("~/Home/GetReturn")',
+                            method: 'POST',
+                            dataType: 'json',
+                            data: { inModel: postData},
+                            success: function(returnObj) {
+                                console.log(returnObj)
+                            },
+                            error: function(err) {
+                                alert(err.status + " " + err.statusText + '\n' + err.responseText);
+                            }
+                        });
+                    }
+                }
+            });
+            const vm = app.mount('#app');
+        </script>
+    }

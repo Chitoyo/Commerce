@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "iEbFoj/5MLS54qNvyEcLJdUyBXngBOvcImlfUo7czZV2d5JFI+dU7NLUC+ViUyw4CCwecF8OTLP8Wl4SoaHHKA==",
+  "success": true,
+  "projectFilePath": "D:\\work\\GitHub\\Commerce\\Commerce\\Commerce.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
